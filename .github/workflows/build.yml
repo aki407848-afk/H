@@ -1,0 +1,37 @@
+name: Build ESP32 Deauther
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install PlatformIO
+      run: pip install platformio
+
+    - name: Cache PlatformIO packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.platformio
+        key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
+
+    - name: Build Project
+      run: pio run -e esp32-c3-devkitm-1
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: firmware-bin
+        path: .pio/build/esp32-c3-devkitm-1/firmware.bin
